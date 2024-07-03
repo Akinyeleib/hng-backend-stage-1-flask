@@ -23,13 +23,12 @@ def get_location(ip):
 
 @app.route('/api/hello', methods=['GET'])
 def hello():
-    visitor_name = request.args.get('visitor_name', 'Not provided')
+    visitor_name = request.args.get('visitor_name', 'visitor')
     client_ip = get_client_ip()
 
     location_data = get_location(client_ip)
     city = location_data['city']
     lon, lat = location_data['lon'], location_data['lat']
-    # print(f"location_data::{location_data}")
 
     temperature = get_temperature(lon, lat)
     temperature = int(temperature) - 273
