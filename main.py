@@ -10,24 +10,26 @@ OPEN_WEATHER_MAP_API_KEY = environ.get("OPEN_WEATHER_MAP_API_KEY")
 
 
 def get_client_ip():
-    response = requests.get(f"https://ipinfo.io/json?token={IP_INFO_SECRET_KEY}").json()
-    return response
+    if request.environ.get("HTTP_X_FORWARDED_FOR") is None:
+        return request.environ['REMOTE_ADDR']
+    else:
+        return request.environ['HTTP_X_FORWARDED_FOR']
 
 
 def get_location(ip):
-    response = requests.get(f'https://ip-api.com/json/{ip}').json()
+    response = requests.get(f'http://ip-api.com/json/{ip}').json()
     return response
 
 
 @app.route('/api/hello', methods=['GET'])
 def hello():
     visitor_name = request.args.get('visitor_name', 'Not provided')
-    ip_info = get_client_ip()
-    client_ip = ip_info['ip']
-    
+    client_ip = get_client_ip()
+
     location_data = get_location(client_ip)
     city = location_data['city']
     lon, lat = location_data['lon'], location_data['lat']
+    # print(f"location_data::{location_data}")
 
     temperature = get_temperature(lon, lat)
     temperature = int(temperature) - 273
